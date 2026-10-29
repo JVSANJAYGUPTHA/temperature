@@ -1,21 +1,6 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: temp-app-deployment
-  labels:
-    app: temp-app
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: temp-app
-  template:
-    metadata:
-      labels:
-        app: temp-app
     spec:
       containers:
       - name: temp-app
-        image: DOCKERHUB_USERNAME/temp-converter:IMAGE_TAG
+        image: jvsanjayguptha/temperature:IMAGE_TAG
         ports:
         - containerPort: 5000
