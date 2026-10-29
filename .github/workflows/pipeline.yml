@@ -39,7 +39,7 @@ jobs:
 
     - name: Deploy to K8s
       run: |
-        sed -i "s|jvsanjayguptha/temperature:IMAGE_TAG|sanjayguptha/temperature:${{ github.sha }}|g" k8s/deployment.yaml
+        sed -i "s|sanjayguptha/temperature:IMAGE_TAG|sanjayguptha/temperature:${{ github.sha }}|g" k8s/deployment.yaml
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
         kubectl rollout status deployment/temp-app-deployment
