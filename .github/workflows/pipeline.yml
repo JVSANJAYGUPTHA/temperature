@@ -1,4 +1,3 @@
-
 name: CI/CD Pipeline
 
 on:
@@ -8,10 +7,6 @@ on:
 jobs:
   pipeline:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-  
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -26,31 +21,25 @@ jobs:
         pip install -r requirements.txt
         pytest test_app.py
 
-    - name: Log in to GitHub Container Registry
+    - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        username: sanjayguptha
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Convert Repository Name to Lowercase
-      id: string
-      run: |
-        echo "repo_lowercase=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
-
-    - name: Build & Push Image
+    - name: Build & Push to Docker Hub
       uses: docker/build-push-action@v5
       with:
         context: .
         push: true
-        tags: ghcr.io/${{ steps.string.outputs.repo_lowercase }}:${{ github.sha }}
+        tags: sanjayguptha/temperature:${{ github.sha }}
 
     - name: Start Local Kubernetes Cluster
       uses: medyagh/setup-minikube@master
 
     - name: Deploy to K8s
       run: |
-        sed -i "s|jvsanjayguptha/temperature:IMAGE_TAG|ghcr.io/${{ steps.string.outputs.repo_lowercase }}:${{ github.sha }}|g" k8s/deployment.yaml
+        sed -i "s|jvsanjayguptha/temperature:IMAGE_TAG|sanjayguptha/temperature:${{ github.sha }}|g" k8s/deployment.yaml
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
         kubectl rollout status deployment/temp-app-deployment
